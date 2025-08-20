@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ViCTr: Vital Consistency Transfer for Pathology‑Aware Image Synthesis</title>
+  <meta name="description" content="Project/paper overview for ViCTr: Vital Consistency Transfer for Pathology‑Aware Image Synthesis — pathology‑aware CT/MRI synthesis with rectified flows + Tweedie correction and fast sampling." />
+  <meta name="theme-color" content="#0b1020" />
+  <meta property="og:title" content="ViCTr: Vital Consistency Transfer" />
+  <meta property="og:description" content="Pathology‑aware CT/MRI synthesis with rectified flows + Tweedie correction." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/cover.png" />
+  <style>
+    :root{
+      --bg:#0b1020; --bg-soft:#0f162e; --card:#0f162e; --muted:#c8d0ff; --text:#eef2ff; --accent:#a8b3ff; --chip:#1e2a57; --border:#1f2a55; --link:#b7c2ff; --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    :root[data-theme="light"]{
+      --bg:#f6f7fb; --bg-soft:#ffffff; --card:#ffffff; --muted:#4a547a; --text:#0c1226; --accent:#3b47a1; --chip:#e9ecff; --border:#e1e6ff; --link:#2b3cf0; --shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;background:linear-gradient(180deg,var(--bg),#0a0d1a);color:var(--text);font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    [data-theme="light"] body{background:linear-gradient(180deg,var(--bg),#eef1ff)}
+    a{color:var(--link);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1150px;margin:24px auto;padding:0 20px}
+    .nav{position:sticky;top:0;z-index:10;background:var(--bg-soft);border-bottom:1px solid var(--border);backdrop-filter:saturate(120%) blur(8px)}
+    .nav-inner{max-width:1150px;margin:0 auto;display:flex;align-items:center;gap:14px;justify-content:space-between;padding:10px 20px}
+    .nav .links{display:flex;gap:14px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:var(--bg-soft);color:var(--text)}
+    .btn:hover{filter:brightness(1.08)}
+
+    .hero{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:26px;box-shadow:var(--shadow)}
+    h1{font-size:36px;line-height:1.15;margin:0 0 10px}
+    h2{font-size:22px;margin:22px 0 10px;color:var(--accent)}
+    h3{font-size:18px;margin:18px 0 10px;color:var(--accent)}
+    p{line-height:1.65}
+    .muted{color:var(--muted)}
+    .row{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:980px){ .row{grid-template-columns: 1.2fr .8fr} }
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .chip{background:var(--chip);padding:6px 10px;border-radius:999px;font-size:12px}
+    .list{margin:8px 0 0 18px}
+    .kvs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .kv{background:color-mix(in oklab, var(--bg) 80%, black 0%);border:1px solid var(--border);border-radius:12px;padding:12px}
+    .grid2{display:grid;grid-template-columns:1fr;gap:16px}
+    @media(min-width:720px){ .grid2{grid-template-columns:1fr 1fr} }
+    .foot{opacity:.75;text-align:center;font-size:13px;margin:24px 0}
+    .affils{display:flex;gap:10px;flex-wrap:wrap}
+    .affil{background:color-mix(in oklab, var(--bg) 86%, white 0%);border:1px solid var(--border);padding:8px 10px;border-radius:12px;font-size:13px}
+    .authors{display:flex;gap:8px;flex-wrap:wrap}
+    .author{background:color-mix(in oklab, var(--bg) 86%, white 0%);border:1px solid var(--border);padding:6px 10px;border-radius:999px}
+    .note{font-size:13px;color:var(--muted)}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:760px){.gallery{grid-template-columns:1fr 1fr}}
+    .thumb{overflow:hidden;border-radius:12px;border:1px solid var(--border);background:var(--bg-soft)}
+    .thumb img{width:100%;height:auto;display:block;transition:transform .5s}
+    .thumb:hover img{transform:scale(1.02)}
+
+    .pdf-embed{width:100%;height:min(80vh,900px);border:1px solid var(--border);border-radius:14px;overflow:hidden;background:var(--bg-soft)}
+    .small{font-size:12px}
+  </style>
+  <script>
+    // Theme toggle (persists to localStorage)
+    const applyTheme = (t) => document.documentElement.setAttribute('data-theme', t);
+    const saved = localStorage.getItem('theme');
+    if(saved){ applyTheme(saved); }
+    function toggleTheme(){
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      applyTheme(next); localStorage.setItem('theme', next);
+    }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"ScholarlyArticle",
+    "name":"ViCTr: Vital Consistency Transfer for Pathology‑Aware Image Synthesis",
+    "author":[{"@type":"Person","name":"Onkar Susladkar"},{"@type":"Person","name":"Gayatri Deshmukh"},{"@type":"Person","name":"Yalcin Tur"},{"@type":"Person","name":"Gorkem Durak"},{"@type":"Person","name":"Ulas Bagci"}],
+    "isAccessibleForFree":true,
+    "url":".",
+    "about":["Rectified Flow","Tweedie correction","CT","MRI","Cirrhosis"]
+  }
+  </script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <div class="links">
+        <a class="btn" href="#abstract">Abstract</a>
+        <a class="btn" href="#contrib">Contributions</a>
+        <a class="btn" href="#methods">Methods</a>
+        <a class="btn" href="#results">Results</a>
+        <a class="btn" href="#gallery">Gallery</a>
+        <a class="btn" href="#pdf">PDF</a>
+        <a class="btn" href="#citation">Citation</a>
+      </div>
+      <button class="btn" onclick="toggleTheme()">🌓 Theme</button>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <header class="hero">
+      <h1>ViCTr: Vital Consistency Transfer for Pathology‑Aware Image Synthesis</h1>
+      <div class="muted">Pathology‑aware CT/MRI synthesis via rectified flows + Tweedie correction with fast sampling.</div>
+
+      <div class="authors" style="margin-top:10px">
+        <span class="author">Onkar Susladkar</span>
+        <span class="author">Gayatri Deshmukh</span>
+        <span class="author">Yalcin Tur</span>
+        <span class="author">Gorkem Durak</span>
+        <span class="author">Ulas Bagci</span>
+      </div>
+      <div class="affils" style="margin-top:8px">
+        <span class="affil">1 Northwestern University</span>
+        <span class="affil">2 Stanford University</span>
+        <span class="affil">3 University of Illinois Urbana‑Champaign</span>
+      </div>
+      <div class="muted" style="margin-top:6px">
+        <a href="mailto:onkarsus13@gmail.com">onkarsus13@gmail.com</a>
+        · <a href="mailto:dgayatri9850@gmail.com">dgayatri9850@gmail.com</a>
+        · <a href="mailto:yalcintr@stanford.edu">yalcintr@stanford.edu</a>
+        · <a href="mailto:gorkem.durak@northwestern.edu">gorkem.durak@northwestern.edu</a>
+        · <a href="mailto:ulas.bagci@northwestern.edu">ulas.bagci@northwestern.edu</a>
+      </div>
+      <div class="chips" style="margin-top:10px">
+        <span class="chip">Rectified Flow</span>
+        <span class="chip">Tweedie Correction</span>
+        <span class="chip">CT & MRI</span>
+        <span class="chip">Cirrhosis Severity Control</span>
+        <span class="chip">Fast (3–4 steps)</span>
+      </div>
+      <div class="chips" style="margin-top:10px">
+        <a class="btn" href="paper.pdf" target="_blank" rel="noreferrer">📄 Read the paper (PDF)</a>
+        <a class="btn" href="https://github.com/Onkarsus13/ViCTr-2D" target="_blank" rel="noreferrer">💻 Code (GitHub)</a>
+        <a class="btn" href="https://huggingface.co/onkarsus13/ViCTr-2D" target="_blank" rel="noreferrer">🧠 Weights (HF)</a>
+      </div>
+    </header>
+
+    <main class="row" style="margin-top:16px">
+      <section id="abstract" class="card">
+        <h2>Abstract</h2>
+        <p>Synthesizing medical images remains challenging due to limited annotated pathological data, modality domain gaps, and the complexity of representing diffuse pathologies such as liver cirrhosis. We introduce <strong>ViCTr</strong>, a two‑stage framework that combines a rectified‑flow trajectory with a <em>Tweedie‑corrected</em> diffusion process to achieve high‑fidelity, pathology‑aware image synthesis. ViCTr pretrains on ATLAS‑8k with EWC to preserve anatomy, then fine‑tunes with LoRA for severity control. Reformulating Tweedie’s formula within a linear trajectory enables <strong>fast sampling</strong> (reducing ~50 steps to as few as 3–4) without compromising anatomical realism. Evaluations on BTCV (CT), AMOS (MRI), and CirrMRI600+ (cirrhosis) show strong MFID and improved nnUNet segmentation when used for augmentation. Radiologist reviews indicate generated cirrhosis MRIs are clinically indistinguishable from real scans.</p>
+      </section>
+
+      <aside class="card">
+        <h2>At a Glance</h2>
+        <div class="kvs">
+          <div class="kv"><strong>Backbones</strong><br/>SD, SD‑XL, SD‑3, PixArt‑α, FLUX</div>
+          <div class="kv"><strong>Datasets</strong><br/>ATLAS‑8k, BTCV, AMOS, CirrMRI600+</div>
+          <div class="kv"><strong>Metric</strong><br/>FID / MFID (M3D‑CLIP)</div>
+          <div class="kv"><strong>Speed</strong><br/>~3–4 steps (vs 30–50)</div>
+        </div>
+        <p class="note">Swap <code>paper.pdf</code> with your file name in this repo to make the “Read the paper” button work.</p>
+      </aside>
+    </main>
+
+    <section class="grid2" style="margin-top:16px">
+      <div id="contrib" class="card">
+        <h2>Key Contributions</h2>
+        <ul class="list">
+          <li><strong>Two‑stage framework</strong> unifying anatomical consistency with pathology realism for CT/MRI synthesis.</li>
+          <li><strong>Tweedie in rectified flow</strong> for accurate initialization and reduced sampling bias.</li>
+          <li><strong>Fast sampling</strong> (3–4 steps) via Tweedie corrections—faster inference without quality loss.</li>
+          <li><strong>Segmentation boosts</strong> when augmenting training with ViCTr‑generated images.</li>
+          <li><strong>First abdominal MRI pathology synthesis</strong> with graded cirrhosis severity control.</li>
+        </ul>
+      </div>
+
+      <div id="methods" class="card">
+        <h2>Methods (Brief)</h2>
+        <p>Rectified Flow learns a velocity field guiding data transport; we integrate a <em>Tweedie‑based</em> correction into the ODE and distill a near one‑step mapping. Stage‑1 pretraining on ATLAS‑8k (with EWC) builds an anatomical prior; Stage‑2 adds LoRA modules for task‑specific adaptation (CT/MRI and cirrhosis severity control), with spatial/temporal consistency losses and SSIM/L2.</p>
+      </div>
+    </section>
+
+    <section class="grid2" style="margin-top:16px">
+      <div id="results" class="card">
+        <h2>Results (Highlights)</h2>
+        <ul class="list">
+          <li>Lower FID / MFID across BTCV, AMOS, CirrMRI600+ compared to vanilla fine‑tuning.</li>
+          <li>Radiologist‑validated realism on cirrhosis synthesis.</li>
+          <li>nnUNet accuracy improvements when training with ViCTr‑generated data.</li>
+          <li>Inference reduced from 30–50 steps to about 3–4 steps.</li>
+        </ul>
+      </div>
+
+      <div id="gallery" class="card">
+        <h2>Gallery</h2>
+        <p class="note">Place your images in <code>assets/</code> (e.g., <code>assets/sample1.png</code>, <code>assets/sample2.jpg</code>). Thumbnails auto‑load if files exist.</p>
+        <div class="gallery" id="gal"></div>
+        <script>
+          // Auto scan a predefined list of filenames; skip those that 404.
+          const candidates = [
+            'assets/cover.png','assets/sample1.png','assets/sample2.png','assets/sample3.jpg','assets/sample4.jpg','assets/ct_mri_grid.png','assets/qualitative.png'
+          ];
+          const gal = document.getElementById('gal');
+          const tryAdd = async (src) => {
+            try {
+              const r = await fetch(src, {method:'HEAD'});
+              if(r.ok){
+                const fig = document.createElement('div'); fig.className='thumb';
+                const img = new Image(); img.loading='lazy'; img.alt='Figure'; img.src=src; fig.appendChild(img); gal.appendChild(fig);
+              }
+            } catch(_){}
+          };
+          candidates.forEach(tryAdd);
+        </script>
+      </div>
+    </section>
+
+    <section id="pdf" class="card" style="margin-top:16px">
+      <h2>Read the Paper (Embedded)</h2>
+      <div class="pdf-embed">
+        <iframe src="paper.pdf#view=FitH" title="Paper PDF" style="border:0;width:100%;height:100%" loading="lazy"></iframe>
+      </div>
+      <p class="small"><a href="paper.pdf" download>Download PDF</a> · If the embed doesn’t load on mobile, use the direct link.</p>
+    </section>
+
+    <section id="citation" class="card" style="margin-top:16px">
+      <h2>Citation</h2>
+      <pre>@inproceedings{susladkar2025victr,
+  title   = {ViCTr: Vital Consistency Transfer for Pathology-Aware Image Synthesis},
+  author  = {Onkar Susladkar and Gayatri Deshmukh and Yalcin Tur and Gorkem Durak and Ulas Bagci},
+  booktitle = {to appear},
+  year    = {2025}
+}</pre>
+      <p class="note">Update venue/year once finalized.</p>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>Host on GitHub Pages</h2>
+      <ol>
+        <li>Create a repo named <code>your-username.github.io</code> (or any repo).</li>
+        <li>Put this file as <code>index.html</code> in the repo root.</li>
+        <li>Add your PDF as <code>paper.pdf</code> and images in <code>/assets</code>.</li>
+        <li>In <em>Settings → Pages</em>, set Branch = <code>main</code>, Folder = <code>/root</code>.</li>
+      </ol>
+    </section>
+
+    <footer class="foot">© Authors. Built as a single‑file static page with dark/light mode, gallery, and PDF embed—perfect for GitHub Pages.</footer>
+  </div>
+</body>
+</html>
